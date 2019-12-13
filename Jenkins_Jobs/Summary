@@ -1,0 +1,40 @@
+pipeline{
+    agent any
+	parameters {
+	}
+	stages {
+	
+		stage('Pipeline Config Checkout'){
+			script{
+					sh 'git clone 'https://github.com/priyankaminz30/calc-infrastructure-config.git'
+					sh 'cd to the calc-infrastructure-config directory'
+					sh 'copy ansible scripts and cloudformation template to a /tmp folder"
+				}
+		}
+		stage('SCM Checkout'){
+			git 'https://github.com/priyankaminz30/calcwebapp.git'
+		}
+		stage('Compile Package'){
+			sh '/opt/maven/bin/mvn package'
+		}
+		stage('create docker image and push to docker hub'){ 
+				run ansible-playbook
+			- create docker-image on jenkins server from war file
+			- push the docker image to docker hub
+		}
+		stage('create temporary instance'){
+			cli command by passing tomcat,docker installation script as user-data
+		}
+		stage('Deploy a container on temporary instance'){ 
+				run ansible-playbook
+			- now ssh into temporary instance and pull the docker image from docker hub
+			- now create a container using this image on the temporary instance
+		}
+		stage('create AMI from temporary instance and then delete the temporary instance'){
+			CLI command
+		}
+		stage('deploy stack using cloudfomration template and ami-id from above steps'){
+			CLI command 
+		}
+	}	
+}
